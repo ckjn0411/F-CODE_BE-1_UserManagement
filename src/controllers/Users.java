@@ -12,7 +12,6 @@ import java.io.ObjectOutputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import models.User;
@@ -78,30 +77,44 @@ public class Users extends ArrayList<User> implements I_User {
 
     @Override
     public boolean updateUser(User user) {
-        boolean updated = true;
-        String firstName = Inputter.getString("Input first name (Enter to skip): ", "Name cannot contain numeric characters", "[a-zA-Z]*", true);
-        if (!firstName.isEmpty()) {
-            user.setFirstName(firstName);
-        }
-        String lastName = Inputter.getString("Input last name (Enter to skip): ", "Name cannot contain numeric characters", "[a-zA-Z]*", true);
-        if (!lastName.isEmpty()) {
-            user.setLastName(lastName);
-        }
-        String password = Inputter.getString("Input password (Enter to skip): ", Acceptable.PASSWORD_NOTI, Acceptable.PASSWORD_VALID, true);
-        if (!password.isEmpty()) {
-            String confirmPw = Inputter.getString("Confirm your password: ", Acceptable.CONFIRM_PW_NOTI, password, true);
-            user.setPassword(passwordEncryp(password));
+        boolean updated = false;
+
+        this.readFromFile();
+        User userToUpdate = null;
+        for (User u : this) {
+            if (u.getUsername().equals(user.getUsername())) {
+                userToUpdate = u;
+                break;
+            }
         }
 
-        String email = Inputter.getString("Input email (Enter to skip): ", Acceptable.EMAIL_NOTI, Acceptable.EMAIL_VALID, true);
-        if (!email.isEmpty()) {
-            user.setEmail(email);
+        if (userToUpdate != null) {
+            String firstName = Inputter.getString("Input first name (Enter to skip): ", "Name cannot contain numeric characters", "[a-zA-Z]*", true);
+            if (!firstName.isEmpty()) {
+                userToUpdate.setFirstName(firstName);
+            }
+            String lastName = Inputter.getString("Input last name (Enter to skip): ", "Name cannot contain numeric characters", "[a-zA-Z]*", true);
+            if (!lastName.isEmpty()) {
+                userToUpdate.setLastName(lastName);
+            }
+            String password = Inputter.getString("Input password (Enter to skip): ", Acceptable.PASSWORD_NOTI, Acceptable.PASSWORD_VALID, true);
+            if (!password.isEmpty()) {
+                String confirmPw = Inputter.getString("Confirm your password: ", Acceptable.CONFIRM_PW_NOTI, password, true);
+                userToUpdate.setPassword(passwordEncryp(password));
+            }
+
+            String email = Inputter.getString("Input email (Enter to skip): ", Acceptable.EMAIL_NOTI, Acceptable.EMAIL_VALID, true);
+            if (!email.isEmpty()) {
+                userToUpdate.setEmail(email);
+            }
+            String phone = Inputter.getString("Input your phone (Enter to skip): ", Acceptable.PHONE_NOTI, Acceptable.PHONE_VALID, true);
+            if (!phone.isEmpty()) {
+                userToUpdate.setPhone(phone);
+            }
+            this.saveToFile();
+            updated = true;
         }
-        String phone = Inputter.getString("Input your phone (Enter to skip): ", Acceptable.PHONE_NOTI, Acceptable.PHONE_VALID, true);
-        if (!phone.isEmpty()) {
-            user.setPhone(phone);
-        }
-        this.saveToFile();
+
         return updated;
     }
 
@@ -137,7 +150,7 @@ public class Users extends ArrayList<User> implements I_User {
 
             return hexString.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Error encrypting password", e);
+            throw new RuntimeException("Error encrypting password: ", e);
         }
     }
 
@@ -151,6 +164,7 @@ public class Users extends ArrayList<User> implements I_User {
         File file = new File(pathFile);
         try ( FileOutputStream f = new FileOutputStream(file);  ObjectOutputStream oos = new ObjectOutputStream(f)) {
             oos.writeObject(this);
+
             isSaved = true;
         } catch (Exception e) {
             System.out.println("Save file in Customers error: " + e);
