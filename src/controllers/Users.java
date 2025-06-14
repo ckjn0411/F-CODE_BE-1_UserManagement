@@ -50,7 +50,7 @@ public class Users extends ArrayList<User> implements I_User {
         String phone = Inputter.getString("Input your phone: ", Acceptable.PHONE_NOTI, Acceptable.PHONE_VALID, true);
 
         String encryptPassword = passwordEncryp(password);
-        User nUser = new User(username, firstName, lastName, email, phone, encryptPassword, encryptPassword);
+        User nUser = new User(username, firstName, lastName, phone, email, encryptPassword, encryptPassword);
         this.add(nUser);
         return true;
     }
@@ -219,9 +219,16 @@ public class Users extends ArrayList<User> implements I_User {
     public void displayUsers() {
         ArrayList<User> userList = readFromFileToNewList();
         sortByFirstName(userList);
+        System.out.println("------------------------------------------------------");
+        System.out.println("Username    | Full Name \t|    Phone    | Email");
+        System.out.println("------------------------------------------------------");
+
         for (User user : userList) {
-            System.out.println(user);
+            String output = String.format("%-12s| %-17s |  %-10s | %-20s",
+                    user.getUsername(), user.getFullname(), user.getPhone(), user.getEmail());
+            System.out.println(output);
         }
+        System.out.println("------------------------------------------------------");
     }
 
     @Override
