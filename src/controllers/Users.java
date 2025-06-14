@@ -59,7 +59,6 @@ public class Users extends ArrayList<User> implements I_User {
     public boolean checkExist(String username) {
         ArrayList<User> userList = readFromFileToNewList();
         int index = userList.indexOf(new User(username));
-        System.out.println(index);
         return index != -1 ? true : false;
     }
 
