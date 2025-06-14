@@ -42,8 +42,8 @@ public class Users extends ArrayList<User> implements I_User {
             }
         }
 
-        String firstName = Inputter.getString("Input first name: ", "Name must contain character", "[a-zA-Z]*", false);
-        String lastName = Inputter.getString("Input last name: ", "Name must contain character", "[a-zA-Z]*", false);
+        String firstName = Inputter.getString("Input first name: ", "Name cannot contain numeric characters", "[a-zA-Z]*", false);
+        String lastName = Inputter.getString("Input last name: ", "Name cannot contain numeric characters", "[a-zA-Z]*", false);
         String password = Inputter.getString("Input password: ", Acceptable.PASSWORD_NOTI, Acceptable.PASSWORD_VALID, false);
         String confirmPw = Inputter.getString("Confirm your password: ", Acceptable.CONFIRM_PW_NOTI, password, false);
         String email = Inputter.getString("Input email: ", Acceptable.EMAIL_NOTI, Acceptable.EMAIL_VALID, false);
@@ -77,11 +77,11 @@ public class Users extends ArrayList<User> implements I_User {
     @Override
     public boolean updateUser(User user) {
         boolean updated = true;
-        String firstName = Inputter.getString("Input first name (Enter to skip): ", "Name must contain character", "[a-zA-Z]*", true);
+        String firstName = Inputter.getString("Input first name (Enter to skip): ", "Name cannot contain numeric characters", "[a-zA-Z]*", true);
         if (!firstName.isEmpty()) {
             user.setFirstName(firstName);
         }
-        String lastName = Inputter.getString("Input last name (Enter to skip): ", "Name must contain character", "[a-zA-Z]*", true);
+        String lastName = Inputter.getString("Input last name (Enter to skip): ", "Name cannot contain numeric characters", "[a-zA-Z]*", true);
         if (!lastName.isEmpty()) {
             user.setLastName(lastName);
         }
@@ -101,16 +101,6 @@ public class Users extends ArrayList<User> implements I_User {
         }
 //        this.saveToFile();
         return updated;
-    }
-
-    public User searchByUsername(String username) {
-        ArrayList<User> userList = readFromFileToNewList();
-        for (User u : userList) {
-            if (u.getUsername().equals(username)) {
-                return u;
-            }
-        }
-        return null;
     }
 
     @Override
