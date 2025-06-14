@@ -17,7 +17,7 @@ public interface I_User{
     List<User> searchUserByName(String name);
     boolean updateUser(User user);
     boolean deleteUser(User user);
-    boolean passwordEncryp(String password);
+    String passwordEncryp(String password);
     void displayUsers();
     void sortByFirstName(List<User> u);
     boolean saveToFile();

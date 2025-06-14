@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,7 +50,8 @@ public class Users extends ArrayList<User> implements I_User {
         String email = Inputter.getString("Input email: ", Acceptable.EMAIL_NOTI, Acceptable.EMAIL_VALID, false);
         String phone = Inputter.getString("Input your phone: ", Acceptable.PHONE_NOTI, Acceptable.PHONE_VALID, true);
 
-        User nUser = new User(username, firstName, lastName, email, phone, password, confirmPw);
+        String encryptPassword = passwordEncryp(password);
+        User nUser = new User(username, firstName, lastName, email, phone, encryptPassword, encryptPassword);
         this.add(nUser);
         return true;
     }
@@ -88,7 +90,7 @@ public class Users extends ArrayList<User> implements I_User {
         String password = Inputter.getString("Input password (Enter to skip): ", Acceptable.PASSWORD_NOTI, Acceptable.PASSWORD_VALID, true);
         if (!password.isEmpty()) {
             String confirmPw = Inputter.getString("Confirm your password: ", Acceptable.CONFIRM_PW_NOTI, password, true);
-            user.setPassword(password);
+            user.setPassword(passwordEncryp(password));
         }
 
         String email = Inputter.getString("Input email (Enter to skip): ", Acceptable.EMAIL_NOTI, Acceptable.EMAIL_VALID, true);
@@ -99,7 +101,7 @@ public class Users extends ArrayList<User> implements I_User {
         if (!phone.isEmpty()) {
             user.setPhone(phone);
         }
-//        this.saveToFile();
+        this.saveToFile();
         return updated;
     }
 
@@ -119,8 +121,24 @@ public class Users extends ArrayList<User> implements I_User {
     }
 
     @Override
-    public boolean passwordEncryp(String password) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public String passwordEncryp(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(password.getBytes("UTF-8"));
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Error encrypting password", e);
+        }
     }
 
     @Override
@@ -201,11 +219,19 @@ public class Users extends ArrayList<User> implements I_User {
 
     @Override
     public User loginUser() {
+        ArrayList<User> userList = readFromFileToNewList();
         String username = Inputter.getString("Username: ", Acceptable.USERNAME_NOTI, Acceptable.USERNAME_VALID, false);
-        for (User user : this) {
+
+        for (User user : userList) {
             if (user.getUsername().equals(username)) {
-                String password = Inputter.getString("Password: ", "Wrong password!", user.getPassword(), false);
-                return user;
+                String password = Inputter.getString("Password: ", "Wrong password!", Acceptable.PASSWORD_VALID, false);
+                String encryptPassword = passwordEncryp(password);
+                if (user.getPassword().equals(encryptPassword)) {
+                    return user;
+                } else {
+                    System.out.println("Wrong password!");
+                }
+
             }
         }
         System.out.println("Username does not exist!");
